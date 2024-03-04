@@ -1,40 +1,37 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 
+from modules.bot.functions.functions import get_text_and_url
+
 from ...logger import Logger
-from ..keyboards.default import add_delete_button
+from ..keyboards.default import add_custom_button
 
 
 @Logger.log_msg
 async def start(message: types.Message, state: FSMContext):
-    text = "Start message"
-    await message.reply(text, reply_markup=add_delete_button())
+    text = """это бот для создания постов с кнопками
+
+напиши текст для поста и в конце через отдельным параграфом через пробел укажи текст для кнопки в квадратных скобках укажи саму ссылку
+
+пример: 
+<blockquote>текст для длинного поста
+
+кнопка1[link1.com] кнопка2[link2.org] кнопка3[link3.kz]</blockquote>"""
+    await message.reply(text)
     await state.finish()
 
-
 @Logger.log_msg
-async def help(message: types.Message):
-    text = "Help message"
-    await message.reply(text, reply_markup=add_delete_button())
+async def handle_post(message: types.Message, state: FSMContext):
+    text = message.text
+    buttons = get_text_and_url(text)
+    kb: types.InlineKeyboardMarkup | None = None
+    for button in buttons:
+        kb = add_custom_button(text=button[0], link=button[1], kb=kb)
 
-
-async def delete_msg(query: types.CallbackQuery):
-    try:
-        await query.bot.delete_message(query.message.chat.id, query.message.message_id)
-        if query.message.reply_to_message:
-            await query.bot.delete_message(query.message.chat.id, query.message.reply_to_message.message_id)
-        await query.answer()
-    except Exception as exc:
-        Logger.error(exc)
-        await query.answer("Error")
-
+    Logger.info(str(kb))
+    
+    await message.answer(text='\n'.join(text.split('\n')[0:-1]), reply_markup=kb)
 
 def register_handlers_default(dp: Dispatcher):
-    dp.register_message_handler(start, commands="start", state="*")
-    dp.register_message_handler(help, commands="help", state="*")
-
-    dp.register_callback_query_handler(
-        delete_msg,
-        lambda c: c.data == "delete",
-        state="*"
-    )
+    dp.register_message_handler(start, commands=["start", "help"], state="*")
+    dp.register_message_handler(handle_post, state="*")

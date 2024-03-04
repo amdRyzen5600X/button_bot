@@ -21,9 +21,8 @@ async def set_commands(bot):
 async def main(bot, dp):
     Logger.info("Configuring...")
     
-    register_handlers_default(dp)
     register_handlers_admin(dp)
+    register_handlers_default(dp)
 
     await set_commands(bot)
-
     await dp.start_polling()

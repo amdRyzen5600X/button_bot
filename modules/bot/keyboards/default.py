@@ -1,13 +1,15 @@
 from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup)
 
 
-def add_delete_button(kb: InlineKeyboardMarkup | None = None) -> InlineKeyboardMarkup:
+def add_custom_button(
+        text: str,
+        link: str,
+        kb: InlineKeyboardMarkup | None = None,
+) -> InlineKeyboardMarkup:
     if kb is None:
         kb = InlineKeyboardMarkup()
-    del_btn = InlineKeyboardButton(
-            'Delete', 
-            callback_data=f'delete',
-    )
-    kb.add(del_btn)
+
+    button = InlineKeyboardButton(text, url=link)
+    kb.add(button)
 
     return kb
