@@ -13,7 +13,7 @@ def clear_MD(text):
 def get_text_and_url(text: str) -> list[tuple[str, str]]:
     res = []
     buttons = text.split('\n')[-1]
-    for button in buttons.split(' '):
-        res.append((button.split('[')[0], button.split('[')[1][0:-1]))
+    for button in buttons.split(']')[0:-1]:
+        res.append((button.split('[')[0], button.split('[')[1]))
 
     return res
